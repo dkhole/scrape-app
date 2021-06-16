@@ -18,7 +18,15 @@ function App() {
 
   const startSmall = async() => {
     setScraping(true);
-    const resp = await fetch('http://localhost:3000/start-small');
+    const resp = await fetch('/start-small');
+    const data = await resp.json();
+    setData(JSON.parse(data));
+    setScraping(false);
+  }
+
+  const startToday = async() => {
+    setScraping(true);
+    const resp = await fetch('/start-today');
     const data = await resp.json();
     setData(JSON.parse(data));
     setScraping(false);
@@ -28,6 +36,7 @@ function App() {
     <div className="App">
       {scraping ? <div>Scraping...</div> : <div>Ready to scrape</div>}
       <button onClick={startSmall}>Start Small</button>
+      <button onClick={startToday}>Start Today</button>
       <table>
         <thead>
           <tr>

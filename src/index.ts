@@ -1,9 +1,7 @@
 import express from 'express';
 import path from 'path';
 import cors from 'cors';
-import fetch from 'node-fetch';
-import $ from 'cheerio';
-import { startSmall } from './helpers';
+import { startSmall, startToday } from './helpers';
 
 const app = express();
 
@@ -24,8 +22,9 @@ app.get('/start-full', (req, res) => {
     res.send('Starting full!');
 });
 
-app.get('/start-today', (req, res) => {
-    res.send('Starting today!');
+app.get('/start-today', async (req, res) => {
+    const data = await startToday();
+    res.json(JSON.stringify(data));
 });
 
 // The "catchall" handler: for any request that doesn't

@@ -1,5 +1,6 @@
 import $ from 'cheerio';
 import fetch from 'node-fetch';
+import {mapCategories} from './categories';
 
 const processListing = async (searchResp: any, data: Object[]) => {
 	const bodys = await searchResp.text();
@@ -15,7 +16,7 @@ const processListing = async (searchResp: any, data: Object[]) => {
 	}
 
 	const number = $('.reveal-phone-number', bodys);
-	let hasNumber;
+	let hasNumber: boolean;
 
 	number.length > 0 ? (hasNumber = true) : (hasNumber = false);
 
@@ -34,84 +35,59 @@ const processListing = async (searchResp: any, data: Object[]) => {
 	});
 };
 
-const mapCategories = (posts: any) => {
-    posts.map((post: any) => {
-        switch (post.category) {
-            case "Beds":
-                post.category_mapped = "beds";
-                break;
-            case "Sofas":
-                post.category_mapped = "sofas";
-                break;
-            case "Dining Tables":
-                post.category_mapped = "dining tables";
-                break;
-            case "Other Furniture":
-                post.category_mapped = "similar items";
-                break;
-            case "Coffee Tables":
-                post.category_mapped = "coffee tables";
-                break;
-            case "Cabinets":
-                post.category_mapped = "cabinets";
-                break;
-            case "Desks":
-                post.category_mapped = "desks";
-                break;
-            case "Entertainment & TV Units":
-                post.category_mapped = "TV Units";
-                break;
-            case "Dining Chairs":
-                post.category_mapped = "dining chairs";
-                break;
-            case "Bookcases & Shelves":
-                post.category_mapped = "bookcases & shelves";
-                break;
-            case "Armchairs":
-                post.category_mapped = "armchairs";
-                break;
-            case "Dressers & Drawers":
-                post.category_mapped = "dressers & drawers";
-                break;
-            case "Buffets & Side Tables":
-                post.category_mapped = "buffets & side tables";
-                break;
-            case "Stools & Bar stools":
-                post.category_mapped = "stools & bar stools";
-                break;
-            case "Mirrors":
-                post.category_mapped = "mirrors";
-                break;
-            case "Bedside Tables":
-                post.category_mapped = "bedside tables";
-                break;
-            case "Office Chairs":
-                post.category_mapped = "office chairs";
-                break;
-            case "Wardrobes":
-                post.category_mapped = "wardrobes";
-                break;
-        }
-    });
-}
-
-export const startSmall = async() => {
-    const searchResp = await fetch('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
-	const body = await searchResp.text();
-    const result: any = $('.user-ad-row-new-design', body);
-
-    //holds url for listings to scrape
+const scrapeForListings = async(url: string) => {
     const listings: string[] = [];
-    //holds data scraped from listings
-    const data: Object[] = [];
+    //small scrape
+    const searchResp = await fetch(url);
+    const body = await searchResp.text();
+    const result: any = $('.user-ad-row-new-design', body);
 
     //convert fetched data into url and push into listings
     for (let i = 0; i < result.length; i++) {
+        listings.push(`https://www.gumtree.com.au${result[i].attribs.href}`);
+    }
+    
+    return listings;
+}
+
+const scrapeForNumPagesListings = async(url: string) => {
+    const listings: string[] = [];
+
+    //get page 1
+    const searchResp = await fetch(url);
+    const body = await searchResp.text();
+    const result: any = $('.user-ad-row-new-design', body);
+
+    //convert fetched data into url and push into listings
+    for (let i = 0; i < result.length; i++) {
+        listings.push(`https://www.gumtree.com.au${result[i].attribs.href}`);
+    }
+
+    //get page 2 and numpages pref using url
+}
+
+const scrapeForTodayListings = async(listings: string[], url: string) => {
+    const searchResp = await fetch(url);
+	const body = await searchResp.text();
+
+	const result: any = $('.user-ad-row-new-design', body);
+	const times: any = $('.user-ad-row-new-design__age', body);
+
+	for (let i = 0; i < result.length; i++) {
 		listings.push(`https://www.gumtree.com.au${result[i].attribs.href}`);
+		if (!result[i].attribs['aria-describedby'].includes('TOP')) {
+			if (!times[i].children[0].data.includes('ago')) {
+				return false;
+			}
+		}
 	}
-	
-    //scrape all listings
+	return true;
+}
+
+const scrapeListings = async (listings: string[]) => {
+    const data: Object[] = []
     let promises = [];
+    //fetch all listings
 	for (let i = 0; i < listings.length; i++) {
 		promises.push(fetch(listings[i]));
 	}
@@ -124,12 +100,44 @@ export const startSmall = async() => {
 		promises.push(processListing(results[i], data));
 	}
 	await Promise.all(promises);
+    return data;
+}
 
+export const startSmall = async() => {
+	const listings: string[] = await scrapeForListings('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
+    //scrape all listings
+    const data = await scrapeListings(listings);
     mapCategories(data);
     //send data
     return data;
 }
 
-const startToday = async() => {
+export const startFull = async() => {
+    //get 
+	const listings: string[] = await scrapeForListings('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
+    //get first page, second page and number of pages
+    
+    //scrape all listings
+    const data = await scrapeListings(listings);
+    mapCategories(data);
+    //send data
+    return data;
+}
 
+export const startToday = async() => {
+    //get first page as every other page needs 'page-x' in url
+	const listings = await scrapeForListings('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
+
+    let isToday = true;
+    let i = 1;
+    //scrape every page for listings until yesterdays listings begin
+    while (isToday) {
+        isToday = await scrapeForTodayListings(listings, `https://www.gumtree.com.au/s-furniture/waterloo-sydney/page-${i}/c20073l3003798r10?ad=offering`);
+        i++;
+    }
+
+    const data = await scrapeListings(listings);
+    mapCategories(data);
+    //send data
+    return data;
 }
