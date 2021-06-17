@@ -35,35 +35,46 @@ const processListing = async (searchResp: any, data: Object[]) => {
 	});
 };
 
-const scrapeForListings = async(url: string) => {
-    const listings: string[] = [];
+const addToListings = (result: any[], listings: string[]) => {
+    for (let i = 0; i < result.length; i++) {
+        listings.push(`https://www.gumtree.com.au${result[i].attribs.href}`);
+    }
+}
+
+const scrapeUrl = async(url: string, query: string) => {
     //small scrape
     const searchResp = await fetch(url);
     const body = await searchResp.text();
-    const result: any = $('.user-ad-row-new-design', body);
+    const result: any = $(query, body);
 
-    //convert fetched data into url and push into listings
-    for (let i = 0; i < result.length; i++) {
-        listings.push(`https://www.gumtree.com.au${result[i].attribs.href}`);
-    }
-    
-    return listings;
+    return result;
+}
+
+const injectPageToUrl = (url: string, page: string) => {
+    let pageTwo = url.split('/');
+    const temp = pageTwo[pageTwo.length-1];
+    pageTwo[pageTwo.length-1] = page;
+    pageTwo.push(temp);
+    return pageTwo.join('/');
 }
 
 const scrapeForNumPagesListings = async(url: string) => {
-    const listings: string[] = [];
-
     //get page 1
-    const searchResp = await fetch(url);
-    const body = await searchResp.text();
-    const result: any = $('.user-ad-row-new-design', body);
+    let listings: string[] = []
+    const result: any = await scrapeUrl(url, '.user-ad-row-new-design');
+    addToListings(result, listings);
 
-    //convert fetched data into url and push into listings
-    for (let i = 0; i < result.length; i++) {
-        listings.push(`https://www.gumtree.com.au${result[i].attribs.href}`);
-    }
+    //inject page 2 into url to get page 2 url
+    const twoUrl = injectPageToUrl(url, 'page-2');
+    
+    //add result to listings
+    const resultTwo: any = await scrapeUrl(twoUrl, '.user-ad-row-new-design');
+    addToListings(resultTwo, listings);
 
-    //get page 2 and numpages pref using url
+    const pagesData = await scrapeUrl(twoUrl, '.breadcrumbs__summary--enhanced');
+    const numPages = pagesData.text();
+    const intPages: number = parseInt(numPages.substring(numPages.length - 3, numPages.length - 1));
+    return [listings, intPages];
 }
 
 const scrapeForTodayListings = async(listings: string[], url: string) => {
@@ -104,7 +115,9 @@ const scrapeListings = async (listings: string[]) => {
 }
 
 export const startSmall = async() => {
-	const listings: string[] = await scrapeForListings('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
+    let listings: string[] = [];
+	const result: any[] = await scrapeUrl('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering', '.user-ad-row-new-design');
+    addToListings(result, listings);
     //scrape all listings
     const data = await scrapeListings(listings);
     mapCategories(data);
@@ -113,20 +126,27 @@ export const startSmall = async() => {
 }
 
 export const startFull = async() => {
-    //get 
-	const listings: string[] = await scrapeForListings('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
-    //get first page, second page and number of pages
-    
-    //scrape all listings
+    //get first page listings, second page listings and num pages. (num pages only shows from page 2)
+	const [listings, numPages]: any = await scrapeForNumPagesListings('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
+
+    //loop through from third page until end of pages
+    for(let i = 3; i < numPages; i++) {
+        const newUrl = injectPageToUrl('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering', `page-${i}`);
+        const result: any[] = await scrapeUrl(newUrl, '.user-ad-row-new-design');
+        addToListings(result, listings);
+    }
+
+    //after all listings are gathered, scrape and process them
     const data = await scrapeListings(listings);
     mapCategories(data);
-    //send data
     return data;
 }
 
 export const startToday = async() => {
     //get first page as every other page needs 'page-x' in url
-	const listings = await scrapeForListings('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
+    let listings: string[] = [];
+    const result: any[] = await scrapeUrl('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering', '.user-ad-row-new-design');
+    addToListings(result, listings);
 
     let isToday = true;
     let i = 1;

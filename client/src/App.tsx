@@ -16,20 +16,24 @@ function App() {
   const [data, setData] = useState<Entry[]>();
   const [scraping, setScraping] = useState<boolean>(false);
 
-  const startSmall = async() => {
+  const startScrape = async(mode: string) => {
     setScraping(true);
-    const resp = await fetch('/start-small');
+    const resp = await fetch(`/start-${mode}`);
     const data = await resp.json();
     setData(JSON.parse(data));
     setScraping(false);
   }
 
+  const startSmall = async() => {
+    startScrape('small');
+  }
+
   const startToday = async() => {
-    setScraping(true);
-    const resp = await fetch('/start-today');
-    const data = await resp.json();
-    setData(JSON.parse(data));
-    setScraping(false);
+    startScrape('today');
+  }
+
+  const startFull = async() => {
+    startScrape('full');
   }
   
   return (
@@ -37,6 +41,7 @@ function App() {
       {scraping ? <div>Scraping...</div> : <div>Ready to scrape</div>}
       <button onClick={startSmall}>Start Small</button>
       <button onClick={startToday}>Start Today</button>
+      <button onClick={startFull}>Start Full</button>
       <table>
         <thead>
           <tr>

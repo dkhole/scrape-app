@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import cors from 'cors';
-import { startSmall, startToday } from './helpers';
+import { startSmall, startToday, startFull } from './helpers';
 
 const app = express();
 
@@ -18,8 +18,9 @@ app.get('/start-small', async (req, res) => {
     res.json(JSON.stringify(data));
 });
 
-app.get('/start-full', (req, res) => {
-    res.send('Starting full!');
+app.get('/start-full', async (req, res) => {
+    const data = await startFull();
+    res.json(JSON.stringify(data));
 });
 
 app.get('/start-today', async (req, res) => {
