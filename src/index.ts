@@ -5,6 +5,7 @@ import { startSmall, startToday, startFull } from './helpers';
 
 const app = express();
 
+app.use(express.json());
 app.use(cors());
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, '../client/build')));
@@ -13,18 +14,19 @@ app.get('/', (req, res) => {
     res.send('Welcome to port 3000');
 });
 
-app.get('/start-small', async (req, res) => {
-    const data = await startSmall();
+app.post('/start-small', async (req, res) => {
+    console.log(req.body.url);
+    const data = await startSmall(req.body.url);
+    res.json(JSON.stringify(data));
+});
+
+app.post('/start-today', async (req, res) => {
+    const data = await startToday(req.body.url);
     res.json(JSON.stringify(data));
 });
 
 app.get('/start-full', async (req, res) => {
     const data = await startFull();
-    res.json(JSON.stringify(data));
-});
-
-app.get('/start-today', async (req, res) => {
-    const data = await startToday();
     res.json(JSON.stringify(data));
 });
 

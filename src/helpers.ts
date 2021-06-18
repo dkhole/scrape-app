@@ -8,12 +8,13 @@ const processListing = async (searchResp: any, data: Object[]) => {
 	const breadcrumbs = $('.breadcrumbs__separator', bodys);
 	const price = $('.user-ad-price__price', bodys);
 	const profile: any = $('.seller-profile', bodys);
-	const profileUrl = `https://www.gumtree.com.au${profile[0].attribs.href}`;
 
-	if (profileUrl === undefined) {
+	if (profile === undefined) {
 		console.log(profile);
 		console.log(searchResp.url);
 	}
+
+    const profileUrl = `https://www.gumtree.com.au${profile[0].attribs.href}`;
 
 	const number = $('.reveal-phone-number', bodys);
 	let hasNumber: boolean;
@@ -51,7 +52,7 @@ const scrapeUrl = async(url: string, query: string) => {
 }
 
 const injectPageToUrl = (url: string, page: string) => {
-    let pageTwo = url.split('/');
+    const pageTwo = url.split('/');
     const temp = pageTwo[pageTwo.length-1];
     pageTwo[pageTwo.length-1] = page;
     pageTwo.push(temp);
@@ -99,13 +100,14 @@ const scrapeListings = async (listings: string[]) => {
     const data: Object[] = []
     let promises = [];
     //fetch all listings
+    console.log(`getting data from ${listings.length} listings`);
 	for (let i = 0; i < listings.length; i++) {
 		promises.push(fetch(listings[i]));
 	}
     const results = await Promise.all(promises);
     //reuse array
 	promises = [];
-
+    console.log("cleaning scraped data");
     //process scraped listings into usable data
 	for (let i = 0; i < results.length; i++) {
 		promises.push(processListing(results[i], data));
@@ -114,9 +116,9 @@ const scrapeListings = async (listings: string[]) => {
     return data;
 }
 
-export const startSmall = async() => {
+export const startSmall = async(url: string) => {
     let listings: string[] = [];
-	const result: any[] = await scrapeUrl('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering', '.user-ad-row-new-design');
+	const result: any[] = await scrapeUrl(url, '.user-ad-row-new-design');
     addToListings(result, listings);
     //scrape all listings
     const data = await scrapeListings(listings);
@@ -142,17 +144,19 @@ export const startFull = async() => {
     return data;
 }
 
-export const startToday = async() => {
+export const startToday = async(url: string) => {
     //get first page as every other page needs 'page-x' in url
     let listings: string[] = [];
-    const result: any[] = await scrapeUrl('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering', '.user-ad-row-new-design');
+    const result: any[] = await scrapeUrl(url, '.user-ad-row-new-design');
     addToListings(result, listings);
 
     let isToday = true;
-    let i = 1;
+    let i = 2;
     //scrape every page for listings until yesterdays listings begin
+    console.log("scraping for todays listings");
     while (isToday) {
-        isToday = await scrapeForTodayListings(listings, `https://www.gumtree.com.au/s-furniture/waterloo-sydney/page-${i}/c20073l3003798r10?ad=offering`);
+        const pageUrl = injectPageToUrl(url, `page-${i}`);
+        isToday = await scrapeForTodayListings(listings, pageUrl);
         i++;
     }
 

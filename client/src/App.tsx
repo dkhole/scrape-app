@@ -13,12 +13,20 @@ type Entry = {
 };
 
 function App() {
+  const [url, setUrl] = useState<string>('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
   const [data, setData] = useState<Entry[]>();
   const [scraping, setScraping] = useState<boolean>(false);
 
   const startScrape = async(mode: string) => {
     setScraping(true);
-    const resp = await fetch(`/start-${mode}`);
+    const resp = await fetch(`/start-${mode}`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({url: url})
+    });
     const data = await resp.json();
     setData(JSON.parse(data));
     setScraping(false);
@@ -41,7 +49,9 @@ function App() {
       {scraping ? <div>Scraping...</div> : <div>Ready to scrape</div>}
       <button onClick={startSmall}>Start Small</button>
       <button onClick={startToday}>Start Today</button>
-      <button onClick={startFull}>Start Full</button>
+      <label htmlFor="url">Url:</label>
+      <input name="url" type="text" value={url} onChange={(e)=>{setUrl(e.target.value)}}></input>
+      <div>"Beware when changing Url. Make sure it's a search link like the default url which points to results for waterloo.</div>
       <table>
         <thead>
           <tr>
