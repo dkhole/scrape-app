@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import './App.css';
 
 type Entry = {
@@ -12,7 +12,7 @@ type Entry = {
   has_number: string;
 };
 
-function App() {
+const App = () => {
   const [url, setUrl] = useState<string>('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
   const [data, setData] = useState<Entry[]>();
   const [scraping, setScraping] = useState<boolean>(false);
@@ -40,9 +40,9 @@ function App() {
     startScrape('today');
   }
 
-  const startFull = async() => {
+  /*const startFull = async() => {
     startScrape('full');
-  }
+  }*/
   
   return (
     <div className="App">

@@ -25,7 +25,7 @@ app.post('/start-today', async (req, res) => {
     res.json(JSON.stringify(data));
 });
 
-app.get('/start-full', async (req, res) => {
+app.post('/start-full', async (req, res) => {
     const data = await startFull();
     res.json(JSON.stringify(data));
 });
