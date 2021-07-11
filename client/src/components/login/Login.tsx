@@ -1,6 +1,4 @@
-import {
-    Link,
-  } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Login = () => {
 
@@ -8,7 +6,7 @@ const Login = () => {
     <div className="login">
       LOGIN
       <div>
-          <Link to="/dashboard">main dashboard</Link>
+          <Link to="/api">main dashboard</Link>
       </div>
     </div>
   );

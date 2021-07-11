@@ -1,29 +1,25 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import './index.css';
-import App from './App';
-import Login from './Login';
-import Dashboard from './Dashboard';
+import Scrape from './components/scrape/Scrape';
+import Login from './components/login/Login';
+import Dashboard from './components/dashboard/Dashboard';
 
 ReactDOM.render(
   <React.StrictMode>
       <Router>
         <Switch>
-          <Route path="/login">
+          <Route exact path="/login">
             <Login />
           </Route>
-          <Route path="/dashboard">
+          <Route exact path="/api">
             <Dashboard />
           </Route>
-          <Route path="/app">
-            <App />
+          <Route exact path="/api/scrape">
+            <Scrape />
           </Route>
-          <Route path="/">
+          <Route exact path="/">
             <Login />
           </Route>
         </Switch>

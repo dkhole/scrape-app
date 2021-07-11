@@ -1,5 +1,6 @@
-import {useState} from 'react';
-import './App.css';
+import { useState } from 'react';
+import { CSVLink } from 'react-csv';
+import './scrape.css';
 
 type Entry = {
   name: string;
@@ -14,12 +15,12 @@ type Entry = {
 
 const App = () => {
   const [url, setUrl] = useState<string>('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
-  const [data, setData] = useState<Entry[]>();
+  const [data, setData] = useState<Entry[] | any>();
   const [scraping, setScraping] = useState<boolean>(false);
 
   const startScrape = async(mode: string) => {
     setScraping(true);
-    const resp = await fetch(`/start-${mode}`, {
+    const resp = await fetch(`scrape/start-${mode}`, {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -49,6 +50,7 @@ const App = () => {
       {scraping ? <div>Scraping...</div> : <div>Ready to scrape</div>}
       <button onClick={startSmall}>Start Small</button>
       <button onClick={startToday}>Start Today</button>
+      { data ? <button><CSVLink data={data}>Download CSV</CSVLink></button> : <div>Extract first to download csv</div> }
       <label htmlFor="url">Url:</label>
       <input name="url" type="text" value={url} onChange={(e)=>{setUrl(e.target.value)}}></input>
       <div>"Beware when changing Url. Make sure it's a search link like the default url which points to results for waterloo.</div>
