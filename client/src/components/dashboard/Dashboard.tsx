@@ -1,6 +1,6 @@
 import { Link, useRouteMatch } from "react-router-dom";
 
-const Dashboard = () => {
+export const Dashboard = () => {
   let match = useRouteMatch();
 
   return (
@@ -9,8 +9,9 @@ const Dashboard = () => {
       <div>
           <Link to={`${match.path}/scrape`}>Gum Scraper</Link>
       </div>
+      <div>
+          <Link to={`${match.path}/auto-msg`}>Auto-Msg</Link>
+      </div>
     </div>
   );
 }
-
-export default Dashboard;

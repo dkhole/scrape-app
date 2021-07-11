@@ -13,7 +13,7 @@ type Entry = {
   has_number: string;
 };
 
-const App = () => {
+export const Scrape  = () => {
   const [url, setUrl] = useState<string>('https://www.gumtree.com.au/s-furniture/waterloo-sydney/c20073l3003798r10?ad=offering');
   const [data, setData] = useState<Entry[] | any>();
   const [scraping, setScraping] = useState<boolean>(false);
@@ -90,5 +90,3 @@ const App = () => {
     </div>
   );
 }
-
-export default App;
