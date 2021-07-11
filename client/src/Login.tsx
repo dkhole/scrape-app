@@ -8,7 +8,7 @@ const Login = () => {
     <div className="login">
       LOGIN
       <div>
-          <Link to="/dashboard">dashboard</Link>
+          <Link to="/dashboard">main dashboard</Link>
       </div>
     </div>
   );
