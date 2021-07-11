@@ -8,13 +8,9 @@ const processListing = async (searchResp: any, data: Object[]) => {
 	const breadcrumbs = $('.breadcrumbs__separator', bodys);
 	const price = $('.user-ad-price__price', bodys);
 	const profile: any = $('.seller-profile', bodys);
-
-	if (profile === undefined) {
-		console.log(profile);
-		console.log(searchResp.url);
-	}
-
-    const profileUrl = `https://www.gumtree.com.au${profile[0].attribs.href}`;
+    let profileUrl = '';
+    
+    profile[0] === undefined ? profileUrl = 'Cant find' : profileUrl = `https://www.gumtree.com.au${profile[0].attribs.href}`
 
 	const number = $('.reveal-phone-number', bodys);
 	let hasNumber: boolean;
