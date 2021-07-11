@@ -1,40 +1,11 @@
 import express from 'express';
-import path from 'path';
-import cors from 'cors';
-import { startSmall, startToday, startFull } from './helpers';
+import { load } from './loaders/load';
+import { routes } from './routes/routes';
 
-const app = express();
+const app: express.Application = express();
 
-app.use(express.json());
-app.use(cors());
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/build')));
-
-app.get('/', (req, res) => {
-    res.send('Welcome to port 3000');
-});
-
-app.post('/start-small', async (req, res) => {
-    console.log(req.body.url);
-    const data = await startSmall(req.body.url);
-    res.json(JSON.stringify(data));
-});
-
-app.post('/start-today', async (req, res) => {
-    const data = await startToday(req.body.url);
-    res.json(JSON.stringify(data));
-});
-
-app.post('/start-full', async (req, res) => {
-    const data = await startFull();
-    res.json(JSON.stringify(data));
-});
-
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname+'/client/build/index.html'));
-});
+load(app);
+routes(app);
 
 app.listen(3000, () => {
     console.log('The application is listening on port 3000!');
