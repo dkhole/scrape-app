@@ -10,7 +10,7 @@ export const Login = () => {
     <div className="login">
       LOGIN
       <div>
-        Password <input value={password} onChange={(e) => {setPassword(e.target.value)}}></input>
+        Password <input type="text" value={password} onChange={(e) => {setPassword(e.target.value)}}></input>
           <Link to="/api">main dashboard</Link>
       </div>
     </div>
