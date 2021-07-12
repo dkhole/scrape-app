@@ -1,8 +1,8 @@
-import { AnyARecord } from 'dns';
 import { Browser, Page } from 'puppeteer';
-import { initPuppet, login } from './puppet';
+import { errorLogin, initSleep, loadInput } from './helpers';
+import { initPuppet, login, sendMessage } from './puppet';
 
-type Input = {
+export type Input = {
     email: string;
     password: string;
     listings: string;
@@ -15,24 +15,14 @@ export type User = {
     password: string;
 }
 
-const loadInput = ({ email, password, listings, message, sleep }: Input): [User, object[], string, number] => {
-    const user = { email, password };
-
-    const splitListings = listings.split('\n');
-    const listingUrls = splitListings.map((listing: string) => {
-        return { url: listing };
-    });
-
-    return [user, listingUrls, message, sleep];
-}
-
-const startLoop = () => {
-    console.log('hello');
-}
-
-const errorLogin = async(browser: Browser) => {
-    await browser.close();
-    throw new Error('Error logging in');
+const startLoop = async(page: Page, user: User, listingUrls: object[], message: string, sleep: number) => {
+    //loop through listings
+    for(let i = 0; i < listingUrls.length; i++) {
+        //send message from user
+        await sendMessage(page, user, listingUrls[i], message);
+        //sleep
+        await initSleep(sleep);
+    }
 }
 
 export const launch = async(data: Input) => {
@@ -45,7 +35,7 @@ export const launch = async(data: Input) => {
         //login
         const success = await login(page, user);
         //check login success
-        (success) ? startLoop() : await errorLogin(browser);
+        (success) ? await startLoop(page, user, listingUrls, message, sleep) : await errorLogin(browser);
         
         await browser.close();
     } catch(e) {
