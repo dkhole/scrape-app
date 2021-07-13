@@ -7,6 +7,9 @@ const app: express.Application = express();
 load(app);
 routes(app);
 
-app.listen(3000, () => {
-    console.log('The application is listening on port 3000!');
+let port = parseInt(process.env.PORT);
+if (port == null ) {  port = 8000; }
+
+app.listen(port, () => {
+    console.log(`The application is listening on port ${port}!`);
 })
