@@ -9,7 +9,7 @@ export const startSmall = async(url: string) => {
 	const result: any[] = await scrapeUrl(url, '.user-ad-row-new-design');
     addToListings(result, listings);
     //scrape and process data from each listing
-    const data = await scrapeListings(listings);
+    const data: any[] = await scrapeListings(listings);
     mapCategories(data);
     console.log('completed scrape');
     return data;
