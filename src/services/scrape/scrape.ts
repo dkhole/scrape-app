@@ -9,7 +9,7 @@ export const scrapeUrl = async(url: string, query: string) => {
     return result;
 }
 
-export const processListing = async (searchResp: any, data: Object[]) => {
+export const processListing = async (searchResp: any) => {
 	const bodys = await searchResp.text();
 	const name = $('.seller-profile__name', bodys);
 	const breadcrumbs = $('.breadcrumbs__separator', bodys);
@@ -27,7 +27,7 @@ export const processListing = async (searchResp: any, data: Object[]) => {
 	const location = breadcrumbs.next();
 	const category = breadcrumbs.last().prev();
 
-	data.push({
+	return {
 		name: name.text(),
 		location: location.text(),
 		category: category.text(),
@@ -36,7 +36,7 @@ export const processListing = async (searchResp: any, data: Object[]) => {
 		url: searchResp.url,
 		profile_url: profileUrl,
 		has_number: hasNumber,
-	});
+	};
 };
 
 export const scrapeForNumPagesListings = async(url: string) => {
@@ -77,7 +77,6 @@ export const scrapeForTodayListings = async(listings: string[], url: string) => 
 }
 
 export const scrapeListings = async (listings: string[]) => {
-    const data: Object[] = []
     const fetchPromises = [];
 	const processPromises = [];
     //fetch all listings
@@ -86,12 +85,10 @@ export const scrapeListings = async (listings: string[]) => {
 		fetchPromises.push(fetch(listings[i]));
 	}
     const results = await Promise.all(fetchPromises);
-
-    console.log(results);
     //process scraped listings into usable data
-	/*for (let i = 0; i < results.length; i++) {
-		processPromises.push(await processListing(results[i], data));
+	for (let i = 0; i < results.length; i++) {
+		processPromises.push(await processListing(results[i]));
 	}
-	await Promise.all(processPromises);*/
+	const data = await Promise.all(processPromises);
     return data;
 }
