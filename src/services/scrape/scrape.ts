@@ -78,20 +78,20 @@ export const scrapeForTodayListings = async(listings: string[], url: string) => 
 
 export const scrapeListings = async (listings: string[]) => {
     const data: Object[] = []
-    let promises = [];
+    const fetchPromises = [];
+	const processPromises = [];
     //fetch all listings
     console.log(`getting data from ${listings.length} listings`);
 	for (let i = 0; i < listings.length; i++) {
-		promises.push(fetch(listings[i]));
+		fetchPromises.push(fetch(listings[i]));
 	}
-    const results = await Promise.all(promises);
-    //reuse array
-	promises = [];
+    const results = await Promise.all(fetchPromises);
+
     console.log("cleaning scraped data");
     //process scraped listings into usable data
 	for (let i = 0; i < results.length; i++) {
-		promises.push(processListing(results[i], data));
+		processPromises.push(await processListing(results[i], data));
 	}
-	await Promise.all(promises);
+	await Promise.all(processPromises);
     return data;
 }

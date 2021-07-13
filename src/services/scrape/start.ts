@@ -11,6 +11,7 @@ export const startSmall = async(url: string) => {
     //scrape and process data from each listing
     const data = await scrapeListings(listings);
     mapCategories(data);
+    console.log('completed scrape');
     return data;
 }
 //scrapes today's listings
