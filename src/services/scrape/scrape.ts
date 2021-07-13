@@ -17,7 +17,7 @@ export const processListing = async (searchResp: any) => {
 	const price = $('.user-ad-price__price', bodys);
 	const profile: any = $('.seller-profile', bodys);
     let profileUrl = '';
-    console.log(name);
+	
     profile[0] === undefined ? profileUrl = 'Cant find' : profileUrl = `https://www.gumtree.com.au${profile[0].attribs.href}`
 
 	const number = $('.reveal-phone-number', bodys);
