@@ -87,7 +87,7 @@ export const scrapeListings = async (listings: string[]) => {
     const results = await Promise.all(fetchPromises);
     //process scraped listings into usable data
 	for (let i = 0; i < results.length; i++) {
-		processPromises.push(await processListing(results[i]));
+		processPromises.push(processListing(results[i]));
 	}
 	const data = await Promise.all(processPromises);
     return data;
