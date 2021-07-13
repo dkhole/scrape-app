@@ -10,6 +10,7 @@
     "@types/node": "^12.20.15",
     "@types/react": "^17.0.11",
     "@types/react-dom": "^17.0.8",
+    "@types/react-router-dom": "^5.1.8",
     "react": "^17.0.2",
     "react-csv": "^2.0.3",
     "react-dom": "^17.0.2",
@@ -45,6 +46,6 @@
   "proxy": "http://localhost:3000",
   "devDependencies": {
     "@types/react-csv": "^1.1.2",
-    "@types/react-router-dom": "^5.1.8"
+    
   }
 }
