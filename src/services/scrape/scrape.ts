@@ -87,11 +87,11 @@ export const scrapeListings = async (listings: string[]) => {
 	}
     const results = await Promise.all(fetchPromises);
 
-    console.log("cleaning scraped data");
+    console.log(results);
     //process scraped listings into usable data
-	for (let i = 0; i < results.length; i++) {
+	/*for (let i = 0; i < results.length; i++) {
 		processPromises.push(await processListing(results[i], data));
 	}
-	await Promise.all(processPromises);
+	await Promise.all(processPromises);*/
     return data;
 }
